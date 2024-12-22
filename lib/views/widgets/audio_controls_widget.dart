@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../view_models/audio_view_model.dart';
+import 'timer_display.dart';
 import 'waveform_animation.dart';
 
 class AudioControlsWidget extends StatelessWidget {
@@ -27,9 +28,9 @@ class AudioControlsWidget extends StatelessWidget {
                       children: [
                         const WaveformAnimation(),
                         const SizedBox(height: 8),
-                        Text(
-                          viewModel.formatDuration(viewModel.recordDuration),
-                          style: Theme.of(context).textTheme.titleMedium,
+                        TimerDisplay(
+                          duration: viewModel.recordDuration,
+                          isRecording: viewModel.isRecording,
                         ),
                       ],
                     )
