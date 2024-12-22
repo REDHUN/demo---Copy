@@ -4,95 +4,88 @@ import 'package:provider/provider.dart';
 import '../../view_models/audio_view_model.dart';
 
 class SendAudioButton extends StatelessWidget {
-  const SendAudioButton({super.key});
+  final Duration minTime;
+
+  const SendAudioButton({
+    super.key,
+    this.minTime = const Duration(minutes: 2),
+  });
+
+  Future<void> _showMinTimeDialog(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        icon: Icon(
+          Icons.timer_outlined,
+          color: colorScheme.error,
+          size: 32,
+        ),
+        title: Text(
+          'Recording Too Short',
+          style: TextStyle(
+            color: colorScheme.error,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Required minimum audio length is ${minTime.inSeconds}s',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please record a longer response',
+              style: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'OK',
+              style: TextStyle(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AudioViewModel>(
       builder: (context, viewModel, child) {
-        final audioModel = viewModel.audioModel;
-
-        if (audioModel.path == null || audioModel.isRecording) {
+        if (viewModel.isRecording) {
           return const SizedBox.shrink();
         }
 
         return Padding(
           padding: const EdgeInsets.only(top: 16.0),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.secondary,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(30),
-                onTap: () async {
-                  final base64Audio = await viewModel.getBase64Audio();
-                  if (base64Audio != null && context.mounted) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => Dialog(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          child: AlertDialog(
-                            title: const Text('Audio Base64'),
-                            content: SingleChildScrollView(
-                              child: SelectableText(
-                                base64Audio,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Close'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 12.0,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.send,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Share Audio',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              final recordingDuration = viewModel.duration;
+              if (recordingDuration < minTime) {
+                _showMinTimeDialog(context);
+                return;
+              }
+              // TODO: Implement sharing functionality
+            },
+            icon: const Icon(Icons.send),
+            label: const Text('Share Audio'),
           ),
         );
       },

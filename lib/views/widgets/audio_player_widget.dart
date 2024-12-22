@@ -11,9 +11,7 @@ class AudioPlayerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AudioViewModel>(
       builder: (context, viewModel, child) {
-        final audioModel = viewModel.audioModel;
-
-        if (audioModel.path == null || audioModel.isRecording) {
+        if (viewModel.path == null || viewModel.isRecording) {
           return const SizedBox.shrink();
         }
 
@@ -31,7 +29,7 @@ class AudioPlayerWidget extends StatelessWidget {
                     IconButton.filled(
                       onPressed: viewModel.playRecording,
                       icon: Icon(
-                          audioModel.isPlaying ? Icons.stop : Icons.play_arrow),
+                          viewModel.isPlaying ? Icons.stop : Icons.play_arrow),
                       iconSize: 32,
                     ),
                     const SizedBox(height: 8),
@@ -42,13 +40,9 @@ class AudioPlayerWidget extends StatelessWidget {
                             const RoundSliderThumbShape(enabledThumbRadius: 8),
                       ),
                       child: Slider(
-                        value: audioModel.position.inSeconds
-                            .toDouble()
-                            .clamp(0, audioModel.duration.inSeconds.toDouble()),
+                        value: viewModel.position.inSeconds.toDouble(),
                         min: 0,
-                        max: audioModel.duration.inSeconds.toDouble() == 0
-                            ? 1
-                            : audioModel.duration.inSeconds.toDouble(),
+                        max: viewModel.duration.inSeconds.toDouble(),
                         onChanged: (value) async {
                           await viewModel
                               .seekTo(Duration(seconds: value.toInt()));
@@ -61,11 +55,11 @@ class AudioPlayerWidget extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            viewModel.formatDuration(audioModel.position),
+                            viewModel.formatDuration(viewModel.position),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           Text(
-                            viewModel.formatDuration(audioModel.duration),
+                            viewModel.formatDuration(viewModel.duration),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],

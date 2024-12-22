@@ -211,7 +211,7 @@ class _QuestionItem extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              child,
+              AudioControlsWidget(minTime: minTime),
             ],
           ),
         ),
